@@ -16,8 +16,8 @@ server.post('/api/users', async (req, res) => {
                 message: 'Please provide name and bio for the user'
             })
         } else {
-            const newUser = await Users.insert(req.body)
-            res.status(201).json(newUser)
+            const newUser = await Users.insert(req.body);
+            res.status(201).json(newUser);
         }
     } catch (err) {
         res.status(500).json({
@@ -39,8 +39,7 @@ server.get('/api/users', (req, res) => {
     })
     .catch(err => {
         res.status(500).json({
-            message: 'The users information could not be retrieved',
-            error: err.message
+            message: 'The users information could not be retrieved'
         });
     })
 });
@@ -49,7 +48,7 @@ server.get('/api/users', (req, res) => {
 server.get('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await Users.find(id)
+        const user = await Users.findById(id)
         if (!user) {
             res.status(404).json({
                 message: 'The user with the specified ID does not exist',
@@ -67,28 +66,28 @@ server.get('/api/users/:id', async (req, res) => {
 
 
 //DELETE /api/users/:id
-
-
-//PUT /api/users/:id - Updates the user with the specified id using data from the request body. Returns the modified user.
-server.put('api/users/:id', async (req, res) => {
+server.delete('/api/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { body } = req;
-    try {
-        const updatedUser = await Users.update(id, body)
-        if (!updatedUser) {
+    Users.remove(id)
+    .then(deletedUser => {
+        if (deletedUser == null) {
             res.status(404).json({
-                message: `user by id ${id} does not exist`
+                message: 'The user with the specified ID does not exist'
             })
+            return;
         } else {
-            res.json(updatedUser);
+            res.json(deletedUser)
         }
-    } catch (err) {
+    })
+    .catch(err => {
         res.status(500).json({
-            message: 'error editing user by id',
+            message: 'The user could not be removed',
             error: err.message,
-        });
-    }
-});
+        })
+    })
+})
+
+
 
 
 module.exports = server; // EXPORT YOUR SERVER instead of {}
